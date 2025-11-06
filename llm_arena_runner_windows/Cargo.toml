@@ -1,0 +1,8 @@
+[package]
+name = "llm_arena_runner_windows"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+elara_platform_windows = { path = "C:/Digital Archive/Game Development/elara/elara_platform_windows/", version = "=1.0.0" }
+llm_arena = { path = "../llm_arena" }

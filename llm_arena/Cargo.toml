@@ -1,0 +1,17 @@
+[package]
+name = "llm_arena"
+version = "0.0.1"
+edition = "2021"
+build = "build.rs"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+path = "src/game.rs"
+
+[dependencies]
+
+elara_engine = { path = "C:/Digital Archive/Game Development/elara/elara_engine/", version = "=2.0.0" }
+elara_render_opengl = { path = "C:/Digital Archive/Game Development/elara/elara_render_opengl/", version = "=1.0.0" }
+
+[dev-dependencies]
+rand = "0.9.0"

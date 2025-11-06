@@ -1,0 +1,9 @@
+
+[workspace]
+resolver = "2"
+
+members = [
+    "llm_arena", 
+    "llm_arena_runner_windows", 
+    "llm_arena_runner_web", 
+]
