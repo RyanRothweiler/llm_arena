@@ -21,14 +21,14 @@ enum Shape {
 }
 
 #[derive(Parse, Clone, Debug, Schema, Deserialize)]
-pub struct Response {
+pub struct LevelGenResponse {
     valid: bool,
     error: String,
     shape: Shape,
     count: i32,
 }
 
-pub async fn test_gen(prompt: &str) -> Result<Response, AIError> {
+pub async fn test_gen(prompt: &str) -> Result<LevelGenResponse, AIError> {
     println!("Start classification");
 
     let mut llm = OpenAICompatibleChatModel::builder()
@@ -37,7 +37,7 @@ pub async fn test_gen(prompt: &str) -> Result<Response, AIError> {
 
     println!("Model started");
 
-    let schema: String = Response::schema().to_string();
+    let schema: String = LevelGenResponse::schema().to_string();
     let task =
         llm.task(&format!("You classify the user's description of a shape. Only include the properties field. Respond in formatted json following this schema {}. ", schema));
 
@@ -55,7 +55,8 @@ pub async fn test_gen(prompt: &str) -> Result<Response, AIError> {
         println!("llm response {:?}", trimmed)
     }
 
-    let response: Response = serde_json::from_str(&trimmed)?;
+    let response: LevelGenResponse = serde_json::from_str(&trimmed)?;
+    println!("Successful classification");
 
     Ok(response)
 }

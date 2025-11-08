@@ -41,6 +41,14 @@ pub mod state;
 use ai_level_gen::*;
 use assets::*;
 
+#[derive(Debug)]
+pub struct LevelGenerationStatus {
+    status: Option<Result<LevelGenResponse, AIError>>,
+}
+
+pub static AI_GEN_STATUS: LazyLock<Mutex<LevelGenerationStatus>> =
+    LazyLock::new(|| Mutex::new(LevelGenerationStatus { status: None }));
+
 #[unsafe(no_mangle)]
 pub fn game_init(
     game_state_ptr: *mut c_void,
@@ -183,16 +191,45 @@ pub fn game_loop(
             ) {
                 let rt = Runtime::new().unwrap();
                 rt.block_on(async {
-                    let resp = test_gen("I have four sides.").await;
+                    let resp = test_gen("Four squares").await;
+                    *AI_GEN_STATUS.lock().unwrap() = LevelGenerationStatus { status: Some(resp) };
+                });
+            }
+
+            // status: Option<Result<LevelGenResponse, AIError>>,
+
+            if let Ok(status) = AI_GEN_STATUS.lock() {
+                if let Some(resp) = &status.status {
                     match resp {
-                        Ok(resp) => {
-                            println!("build level! {:?}", resp);
+                        Ok(level_gen_data) => {
+                            ui::text(
+                                "Level Successfully Generated",
+                                &mut ui_frame_state,
+                                &mut gs.ui_context.as_mut().unwrap(),
+                            );
+                            // println!("generate level! {}")
                         }
+
                         Err(error) => {
-                            println!("error classifying response. {:?}", error);
+                            ui::text(
+                                "Error generating level",
+                                &mut ui_frame_state,
+                                &mut gs.ui_context.as_mut().unwrap(),
+                            );
+                            ui::text(
+                                &format!("{:?}", error),
+                                &mut ui_frame_state,
+                                &mut gs.ui_context.as_mut().unwrap(),
+                            );
                         }
                     }
-                });
+                }
+
+                ui::text(
+                    &format!("{:?}", status),
+                    &mut ui_frame_state,
+                    &mut gs.ui_context.as_mut().unwrap(),
+                );
             }
         }
 
