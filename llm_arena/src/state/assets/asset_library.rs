@@ -1,6 +1,6 @@
 use elara_engine::{
     model::*,
-    render::{image::*, material::*, shader::*, RenderApi, *},
+    render::{RenderApi, image::*, material::*, shader::*, *},
 };
 use std::collections::HashMap;
 
@@ -21,7 +21,8 @@ impl AssetLibrary {
     }
 
     pub fn get_model(&self, id: &str) -> &Model {
-        if let Some(model) = self.models.get(id.into()) {
+        let s: String = id.into();
+        if let Some(model) = self.models.get(&s) {
             return model;
         } else {
             // Missing model
@@ -30,8 +31,9 @@ impl AssetLibrary {
     }
 
     pub fn get_texture(&self, id: &str) -> &Image {
+        let s: String = id.into();
         self.textures
-            .get(id.into())
+            .get(&s)
             .expect(&format!("Missing asset id {}", id))
     }
 }

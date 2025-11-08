@@ -12,7 +12,7 @@ use elara_engine::{
     input::*,
     platform_api::*,
     rect::*,
-    render::{light::*, render_pack::*, shader::*, vao::*, RenderApi},
+    render::{RenderApi, light::*, render_pack::*, shader::*, vao::*},
     rigel_ui::*,
     state::State as EngineState,
     time::*,
@@ -22,6 +22,7 @@ use elara_engine::{
     vectors::*,
 };
 use elara_render_opengl::*;
+use kalosm::language::*;
 use std::{
     collections::HashMap,
     ffi::c_void,
@@ -32,12 +33,15 @@ use std::{
     slice,
     sync::{LazyLock, Mutex},
 };
+use tokio::runtime::Runtime;
 
+pub mod ai_level_gen;
 pub mod state;
 
+use ai_level_gen::*;
 use assets::*;
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub fn game_init(
     game_state_ptr: *mut c_void,
     es: &mut EngineState,
@@ -113,7 +117,7 @@ pub fn game_init(
 }
 
 // Prev delta time is in seconds. So for 60 fps 0.016666.
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub fn game_loop(
     prev_delta_time: f64,
     game_state_ptr: *mut c_void,
@@ -170,7 +174,27 @@ pub fn game_loop(
     {
         let r = Rect::new_top_size(VecTwo::new(0.0, 0.0), 300.0, 500.0);
         ui::begin(r, &mut ui_frame_state, &mut gs.ui_context.as_mut().unwrap());
-        {}
+        {
+            if ui::button(
+                "Run Classification",
+                &mut ui_frame_state,
+                std::line!(),
+                gs.ui_context.as_mut().unwrap(),
+            ) {
+                let rt = Runtime::new().unwrap();
+                rt.block_on(async {
+                    let resp = test_gen("I have four sides.").await;
+                    match resp {
+                        Ok(resp) => {
+                            println!("build level! {:?}", resp);
+                        }
+                        Err(error) => {
+                            println!("error classifying response. {:?}", error);
+                        }
+                    }
+                });
+            }
+        }
 
         ui::end(&mut ui_frame_state, &mut gs.ui_context.as_mut().unwrap());
     }
