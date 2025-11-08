@@ -183,6 +183,21 @@ pub fn game_loop(
         let r = Rect::new_top_size(VecTwo::new(0.0, 0.0), 300.0, 500.0);
         ui::begin(r, &mut ui_frame_state, &mut gs.ui_context.as_mut().unwrap());
         {
+            ui::input_field(
+                "Prompt",
+                "prompt",
+                &mut gs.prompt,
+                VecTwo::new(10.0, 40.0),
+                280.0,
+                &gs.font_style_body.clone(),
+                &gs.font_style_body.clone(),
+                &mut ui_frame_state,
+                gs.ui_context.as_mut().unwrap(),
+                std::line!(),
+            );
+
+            ui_frame_state.cursor.y += 80.0;
+
             if ui::button(
                 "Run Classification",
                 &mut ui_frame_state,
@@ -191,12 +206,10 @@ pub fn game_loop(
             ) {
                 let rt = Runtime::new().unwrap();
                 rt.block_on(async {
-                    let resp = test_gen("Four squares").await;
+                    let resp = test_gen(&gs.prompt).await;
                     *AI_GEN_STATUS.lock().unwrap() = LevelGenerationStatus { status: Some(resp) };
                 });
             }
-
-            // status: Option<Result<LevelGenResponse, AIError>>,
 
             if let Ok(status) = AI_GEN_STATUS.lock() {
                 if let Some(resp) = &status.status {
@@ -207,17 +220,11 @@ pub fn game_loop(
                                 &mut ui_frame_state,
                                 &mut gs.ui_context.as_mut().unwrap(),
                             );
-                            // println!("generate level! {}")
                         }
 
                         Err(error) => {
                             ui::text(
                                 "Error generating level",
-                                &mut ui_frame_state,
-                                &mut gs.ui_context.as_mut().unwrap(),
-                            );
-                            ui::text(
-                                &format!("{:?}", error),
                                 &mut ui_frame_state,
                                 &mut gs.ui_context.as_mut().unwrap(),
                             );

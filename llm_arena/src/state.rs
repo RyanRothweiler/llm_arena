@@ -21,6 +21,8 @@ pub struct State {
     pub font_style_nav: FontStyle,
 
     pub ui_context: Option<Context>,
+
+    pub prompt: String,
 }
 
 impl State {
@@ -32,6 +34,8 @@ impl State {
             font_style_body: Default::default(),
             font_style_header: Default::default(),
             font_style_nav: Default::default(),
+
+            prompt: String::new(),
         }
     }
 }
