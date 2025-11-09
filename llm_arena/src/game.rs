@@ -9,10 +9,13 @@
 use crate::state::*;
 use elara_engine::{
     build_vars::*,
+    color::*,
     input::*,
     platform_api::*,
     rect::*,
-    render::{RenderApi, light::*, render_pack::*, shader::*, vao::*},
+    render::{
+        RenderApi, light::*, material::*, render_command::*, render_pack::*, shader::*, vao::*,
+    },
     rigel_ui::*,
     state::State as EngineState,
     time::*,
@@ -40,6 +43,8 @@ pub mod state;
 
 use ai_level_gen::*;
 use assets::*;
+
+const GEN_RANGE: f64 = 300.0;
 
 #[derive(Debug)]
 pub struct LevelGenerationStatus {
@@ -206,7 +211,24 @@ pub fn game_loop(
             ) {
                 let rt = Runtime::new().unwrap();
                 rt.block_on(async {
-                    let resp = test_gen(&gs.prompt).await;
+                    let resp = classify(&gs.prompt).await;
+
+                    if let Ok(resp) = &resp {
+                        gs.squares.clear();
+
+                        for c in 0..resp.count {
+                            let r = GEN_RANGE * f64::sqrt((platform_api.rand)());
+                            let theta = (platform_api.rand)() * 2.0 * 3.14159;
+
+                            let rand_pos = VecTwo::new(r * f64::cos(theta), r * f64::sin(theta));
+
+                            match resp.shape {
+                                Shape::Square => gs.squares.push(rand_pos),
+                                Shape::None => {}
+                            }
+                        }
+                    }
+
                     *AI_GEN_STATUS.lock().unwrap() = LevelGenerationStatus { status: Some(resp) };
                 });
             }
@@ -215,16 +237,24 @@ pub fn game_loop(
                 if let Some(resp) = &status.status {
                     match resp {
                         Ok(level_gen_data) => {
-                            ui::text(
-                                "Level Successfully Generated",
-                                &mut ui_frame_state,
-                                &mut gs.ui_context.as_mut().unwrap(),
-                            );
+                            if level_gen_data.valid {
+                                ui::text(
+                                    "Level Successfully Generated",
+                                    &mut ui_frame_state,
+                                    &mut gs.ui_context.as_mut().unwrap(),
+                                );
+                            } else {
+                                ui::text(
+                                    &format!("Prompt is invalid. {}", level_gen_data.error),
+                                    &mut ui_frame_state,
+                                    &mut gs.ui_context.as_mut().unwrap(),
+                                );
+                            }
                         }
 
                         Err(error) => {
                             ui::text(
-                                "Error generating level",
+                                "Error getting response",
                                 &mut ui_frame_state,
                                 &mut gs.ui_context.as_mut().unwrap(),
                             );
@@ -241,6 +271,28 @@ pub fn game_loop(
         }
 
         ui::end(&mut ui_frame_state, &mut gs.ui_context.as_mut().unwrap());
+    }
+
+    // render level
+    {
+        // render rocks
+        {
+            for pos in &gs.squares {
+                let r = Rect::new_center(*pos, VecTwo::new(30.0, 30.0));
+
+                let mut mat = Material::new();
+                mat.shader = Some(es.shader_color);
+                mat.uniforms.insert(
+                    "color".to_string(),
+                    UniformData::VecFour(COLOR_WHITE.into()),
+                );
+
+                es.render_system.add_command(
+                    RenderCommand::new_rect(&r, -1.0, 0.0, &mat),
+                    RenderPackID::World,
+                );
+            }
+        }
     }
 
     es.render_system

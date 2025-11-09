@@ -23,6 +23,8 @@ pub struct State {
     pub ui_context: Option<Context>,
 
     pub prompt: String,
+
+    pub squares: Vec<VecTwo>,
 }
 
 impl State {
@@ -36,6 +38,8 @@ impl State {
             font_style_nav: Default::default(),
 
             prompt: String::new(),
+
+            squares: vec![],
         }
     }
 }

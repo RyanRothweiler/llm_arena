@@ -13,22 +13,20 @@ pub use ai_error::AIError;
 
 // First, derive an efficient parser for your structured data
 #[derive(Parse, Clone, Debug, Schema, Deserialize)]
-enum Shape {
+pub enum Shape {
     None,
-    Circle,
     Square,
-    Triangle,
 }
 
 #[derive(Parse, Clone, Debug, Schema, Deserialize)]
 pub struct LevelGenResponse {
-    valid: bool,
-    error: String,
-    shape: Shape,
-    count: i32,
+    pub valid: bool,
+    pub error: String,
+    pub shape: Shape,
+    pub count: i32,
 }
 
-pub async fn test_gen(prompt: &str) -> Result<LevelGenResponse, AIError> {
+pub async fn classify(prompt: &str) -> Result<LevelGenResponse, AIError> {
     println!("Start classification");
 
     let mut llm = OpenAICompatibleChatModel::builder()
