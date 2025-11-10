@@ -1,9 +1,5 @@
-#![allow(dead_code)]
-
 use kalosm::language::*;
 use serde::Deserialize;
-use std::sync::Arc;
-use tokio::time::{Duration, sleep};
 
 const DEBUG: bool = false;
 

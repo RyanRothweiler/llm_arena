@@ -1,10 +1,4 @@
-#![allow(
-    unused_imports,
-    unused_variables,
-    clippy::all,
-    unused_mut,
-    unreachable_code
-)]
+#![allow(unused_variables, clippy::all, unused_mut, unreachable_code)]
 
 use crate::state::*;
 use elara_engine::{
@@ -13,11 +7,7 @@ use elara_engine::{
     input::*,
     platform_api::*,
     rect::*,
-    render::{
-        RenderApi, light::*, load_image_cursor, material::*, render_command::*, render_pack::*,
-        shader::*, vao::*,
-    },
-    rigel_ui::*,
+    render::{light::*, load_image_cursor, material::*, render_command::*, render_pack::*},
     state::State as EngineState,
     time::*,
     transform::*,
@@ -26,15 +16,9 @@ use elara_engine::{
     vectors::*,
 };
 use elara_render_opengl::*;
-use kalosm::language::*;
 use std::{
     collections::HashMap,
     ffi::c_void,
-    io::Cursor,
-    mem,
-    net::UdpSocket,
-    path::Path,
-    slice,
     sync::{LazyLock, Mutex},
 };
 use tokio::runtime::Runtime;

@@ -9,6 +9,7 @@ fn main() {
         .expect("Couldn't open output file");
 
     let imp = r#"
+#![allow(unused_imports)]
 use elara_engine::{
     model::*,
     render::{image::*, RenderApi, *},

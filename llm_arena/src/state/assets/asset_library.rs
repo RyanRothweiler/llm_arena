@@ -1,6 +1,6 @@
 use elara_engine::{
     model::*,
-    render::{RenderApi, image::*, material::*, shader::*, *},
+    render::{RenderApi, image::*},
 };
 use std::collections::HashMap;
 

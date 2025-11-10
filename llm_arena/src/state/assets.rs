@@ -1,15 +1,4 @@
-use elara_engine::{
-    color::*,
-    model::*,
-    render::{
-        RenderApi, camera::*, frame_buffer_pack::*, image::*, light::*, material::*,
-        render_pack::*, shader::*,
-    },
-    state::components::*,
-    transform::*,
-    vectors::*,
-};
-use std::collections::HashMap;
+use elara_engine::render::{material::*, shader::*};
 
 pub mod asset_library;
 
