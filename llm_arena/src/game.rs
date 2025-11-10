@@ -1,5 +1,3 @@
-#![allow(unused_variables, clippy::all, unused_mut, unreachable_code)]
-
 use crate::state::*;
 use elara_engine::{
     build_vars::*,
@@ -62,7 +60,7 @@ pub fn game_init(
 
     // init world camera
     {
-        let mut cam = &mut es.render_system.get_pack(RenderPackID::NewWorld).camera;
+        let cam = &mut es.render_system.get_pack(RenderPackID::NewWorld).camera;
 
         cam.transform.local_position = VecThreeFloat::new(1.0, 27.0, 20.0);
         cam.pitch = 55.0;
@@ -72,7 +70,7 @@ pub fn game_init(
 
     // init shop
     {
-        let mut cam = &mut es.render_system.get_pack(RenderPackID::Shop).camera;
+        let cam = &mut es.render_system.get_pack(RenderPackID::Shop).camera;
 
         cam.transform.local_position = VecThreeFloat::new(0.0, 23.0, 11.0);
         cam.pitch = 70.0;

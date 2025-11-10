@@ -19,7 +19,7 @@ pub struct LevelGenResponse {
 pub async fn classify(prompt: &str) -> Result<LevelGenResponse, AIError> {
     println!("Start classification");
 
-    let mut llm = OpenAICompatibleChatModel::builder()
+    let llm = OpenAICompatibleChatModel::builder()
         .with_gpt_4o_mini()
         .build();
 
