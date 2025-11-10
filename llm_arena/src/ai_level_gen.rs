@@ -11,19 +11,13 @@ pub mod ai_error;
 
 pub use ai_error::AIError;
 
-// First, derive an efficient parser for your structured data
-#[derive(Parse, Clone, Debug, Schema, Deserialize)]
-pub enum Shape {
-    None,
-    Square,
-}
-
 #[derive(Parse, Clone, Debug, Schema, Deserialize)]
 pub struct LevelGenResponse {
     pub valid: bool,
     pub error: String,
-    pub shape: Shape,
-    pub count: i32,
+
+    pub square_count: i32,
+    pub circle_count: i32,
 }
 
 pub async fn classify(prompt: &str) -> Result<LevelGenResponse, AIError> {

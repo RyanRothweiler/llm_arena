@@ -14,7 +14,8 @@ use elara_engine::{
     platform_api::*,
     rect::*,
     render::{
-        RenderApi, light::*, material::*, render_command::*, render_pack::*, shader::*, vao::*,
+        RenderApi, light::*, load_image_cursor, material::*, render_command::*, render_pack::*,
+        shader::*, vao::*,
     },
     rigel_ui::*,
     state::State as EngineState,
@@ -71,6 +72,9 @@ pub fn game_init(
     );
 
     load_game_assets(&mut gs.assets.asset_library, render_api);
+
+    gs.image_circle =
+        load_image_cursor(include_bytes!("../resources/circle.png"), render_api).unwrap();
 
     // init world camera
     {
@@ -215,17 +219,24 @@ pub fn game_loop(
 
                     if let Ok(resp) = &resp {
                         gs.squares.clear();
+                        gs.circles.clear();
 
-                        for c in 0..resp.count {
+                        for c in 0..resp.square_count {
                             let r = GEN_RANGE * f64::sqrt((platform_api.rand)());
                             let theta = (platform_api.rand)() * 2.0 * 3.14159;
 
                             let rand_pos = VecTwo::new(r * f64::cos(theta), r * f64::sin(theta));
 
-                            match resp.shape {
-                                Shape::Square => gs.squares.push(rand_pos),
-                                Shape::None => {}
-                            }
+                            gs.squares.push(rand_pos);
+                        }
+
+                        for c in 0..resp.circle_count {
+                            let r = GEN_RANGE * f64::sqrt((platform_api.rand)());
+                            let theta = (platform_api.rand)() * 2.0 * 3.14159;
+
+                            let rand_pos = VecTwo::new(r * f64::cos(theta), r * f64::sin(theta));
+
+                            gs.circles.push(rand_pos);
                         }
                     }
 
@@ -275,23 +286,33 @@ pub fn game_loop(
 
     // render level
     {
-        // render rocks
-        {
-            for pos in &gs.squares {
-                let r = Rect::new_center(*pos, VecTwo::new(30.0, 30.0));
+        // render squares
+        for pos in &gs.squares {
+            let r = Rect::new_center(*pos, VecTwo::new(30.0, 30.0));
 
-                let mut mat = Material::new();
-                mat.shader = Some(es.shader_color);
-                mat.uniforms.insert(
-                    "color".to_string(),
-                    UniformData::VecFour(COLOR_WHITE.into()),
-                );
+            let mut mat = Material::new();
+            mat.shader = Some(es.shader_color);
+            mat.set_color(COLOR_WHITE);
 
-                es.render_system.add_command(
-                    RenderCommand::new_rect(&r, -1.0, 0.0, &mat),
-                    RenderPackID::World,
-                );
-            }
+            es.render_system.add_command(
+                RenderCommand::new_rect(&r, -1.0, 0.0, &mat),
+                RenderPackID::World,
+            );
+        }
+
+        // render circles
+        for pos in &gs.circles {
+            let r = Rect::new_center(*pos, VecTwo::new(30.0, 30.0));
+
+            let mut mat = Material::new();
+            mat.shader = Some(es.color_texture_shader);
+            mat.set_color(COLOR_WHITE);
+            mat.set_image(gs.image_circle.gl_id.unwrap());
+
+            es.render_system.add_command(
+                RenderCommand::new_rect(&r, -1.0, 0.0, &mat),
+                RenderPackID::World,
+            );
         }
     }
 

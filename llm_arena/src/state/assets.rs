@@ -2,8 +2,8 @@ use elara_engine::{
     color::*,
     model::*,
     render::{
-        camera::*, frame_buffer_pack::*, image::*, light::*, material::*, render_pack::*,
-        shader::*, RenderApi,
+        RenderApi, camera::*, frame_buffer_pack::*, image::*, light::*, material::*,
+        render_pack::*, shader::*,
     },
     state::components::*,
     transform::*,
@@ -16,26 +16,14 @@ pub mod asset_library;
 pub use asset_library::*;
 
 pub struct Assets {
-    pub image_pack_starter: Image,
-    pub image_pack_stick: Image,
-    pub image_pack_mud: Image,
-    pub image_pack_water: Image,
-
     pub asset_library: AssetLibrary,
-
     pub missing_material: Material,
 }
 
 impl Assets {
     pub fn new() -> Self {
         Self {
-            image_pack_starter: Image::new(),
-            image_pack_stick: Image::new(),
-            image_pack_mud: Image::new(),
-            image_pack_water: Image::new(),
-
             asset_library: AssetLibrary::new(),
-
             missing_material: Material::new(),
         }
     }
